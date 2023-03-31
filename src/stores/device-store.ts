@@ -1,4 +1,5 @@
-import { CreateCollectionOptions, ObjectId } from "mongodb";
+import { CreateCollectionOptions, Filter, ObjectId } from "mongodb";
+import { z } from "zod";
 import { Store } from "./store";
 
 export type DeviceSchema = {
@@ -6,19 +7,42 @@ export type DeviceSchema = {
     vendor: string;
     created: Date;
     status: "online" | "offline";
-    gateway_id: ObjectId;
+    gateway_id?: ObjectId;
 };
 
-export type Device = DeviceSchema;
+export type Device = DeviceSchema & { id: string };
+
+const deviceSchema = z.object({
+    uid: z.coerce.number().min(0),
+    vendor: z.string(),
+    status: z.enum(["online", "offline"]),
+});
 
 class DeviceStore extends Store<DeviceSchema> {
     public get collectionName(): string {
         return "gateways";
     }
 
-    public async getList() {
+    public async getList({ free, gateway_id }: { free?: boolean; gateway_id?: string }): Promise<Device[]> {
         const collection = await this.collection;
-        return await collection.find({}).toArray();
+        const filter: Filter<DeviceSchema> = {};
+
+        if (typeof free === "boolean" && !gateway_id) {
+            filter.gateway_id = { $exists: !free };
+        }
+
+        if (gateway_id) {
+            filter.gateway_id = { $eq: new ObjectId(gateway_id) };
+        }
+
+        return (await collection.find(filter).toArray()).map((d) => ({ ...d, id: d._id.toString() }));
+    }
+
+    public async create(value: Omit<DeviceSchema, "created" | "gateway_id">) {
+        const collection = await this.collection;
+        const parsed = deviceSchema.parse(value);
+
+        return await collection.insertOne({ ...parsed, created: new Date() });
     }
 
     public get schema(): CreateCollectionOptions {
@@ -27,7 +51,7 @@ class DeviceStore extends Store<DeviceSchema> {
                 $jsonSchema: {
                     bsonType: "object",
                     title: "Device Object Validation",
-                    required: ["uid", "vendor", "created", "status", "gateway_id"],
+                    required: ["uid", "vendor", "created", "status"],
                     properties: {
                         uid: {
                             bsonType: "int",

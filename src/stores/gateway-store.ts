@@ -1,4 +1,6 @@
-import { CreateCollectionOptions } from "mongodb";
+import { CreateCollectionOptions, ObjectId } from "mongodb";
+import { z } from "zod";
+import { NotFoundError } from "../../lib/errors";
 import { Device, deviceStore } from "./device-store";
 import { Store } from "./store";
 
@@ -9,21 +11,49 @@ export type GatewaySchema = {
 };
 
 export type Gateway = GatewaySchema & {
+    id: string;
     devices: Device[];
 };
+
+const gatewaySchema = z.object({
+    serial_number: z.string().regex(/[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}/),
+    name: z.string(),
+    ip_address: z.string().ip(),
+});
 
 class GatewayStore extends Store<GatewaySchema> {
     public get collectionName(): string {
         return "devices";
     }
 
+    public async get(id: string): Promise<Gateway> {
+        const collection = await this.collection;
+
+        const gateway = await collection.findOne({ _id: new ObjectId(id) });
+
+        if (gateway === null) {
+            throw new NotFoundError(`Gateway with id ${id} not found.`);
+        }
+
+        const devices = await deviceStore.getList({ gateway_id: gateway._id.toString() });
+
+        return { ...gateway, devices, id: gateway._id.toString() };
+    }
+
     public async getList(): Promise<Gateway[]> {
         const collection = await this.collection;
 
         const gateway = await collection.find({}).toArray();
-        const devices = await deviceStore.getList();
+        const devices = await deviceStore.getList({ free: false });
 
-        return gateway.map((g) => ({ ...g, devices: devices.filter((d) => d.gateway_id.equals(g._id)) }));
+        return gateway.map((g) => ({ ...g, id: g._id.toString(), devices: devices.filter((d) => d.gateway_id?.equals(g._id)) }));
+    }
+
+    public async create(value: GatewaySchema) {
+        const collection = await this.collection;
+        const parsed = gatewaySchema.parse(value);
+
+        return await collection.insertOne(parsed);
     }
 
     public get schema(): CreateCollectionOptions {

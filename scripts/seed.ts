@@ -1,7 +1,7 @@
 require("dotenv-flow").config();
 
-import { deviceStore, gatewayStore } from "../src/stores";
 import { client } from "../lib/mongodb";
+import { deviceStore, gatewayStore } from "../src/stores";
 
 async function run() {
     try {
@@ -12,16 +12,17 @@ async function run() {
         await devicesCollection.deleteMany({});
 
         const gateways = await gatewayCollection.insertMany([
-            { serial_number: "1234", name: "name1", ip_address: "127.0.0.1" },
-            { serial_number: "3454", name: "name2", ip_address: "127.0.0.2" },
+            { serial_number: "01234567-89ABCDEF-01234567-19ABCDEF", name: "Gateway #1", ip_address: "192.168.1.1" },
+            { serial_number: "01234567-89ABCDEF-01234567-29ABCDEF", name: "Gateway #2", ip_address: "192.168.1.2" },
         ]);
 
         console.log(gateways);
 
         const devices = await devicesCollection.insertMany([
-            { uid: 1, vendor: "vendor1", created: new Date(), status: "online", gateway_id: gateways.insertedIds[0] },
-            { uid: 2, vendor: "vendor1", created: new Date(), status: "offline", gateway_id: gateways.insertedIds[0] },
-            { uid: 3, vendor: "vendor1", created: new Date(), status: "online", gateway_id: gateways.insertedIds[1] },
+            { uid: 123, vendor: "Vendor #1", created: new Date(), status: "online", gateway_id: gateways.insertedIds[0] },
+            { uid: 124, vendor: "Vendor #1", created: new Date(), status: "offline", gateway_id: gateways.insertedIds[0] },
+            { uid: 125, vendor: "Vendor #2", created: new Date(), status: "online", gateway_id: gateways.insertedIds[1] },
+            { uid: 126, vendor: "Vendor #3", created: new Date(), status: "online" },
         ]);
 
         console.log(devices);
