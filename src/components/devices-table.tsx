@@ -3,6 +3,8 @@ import type { Device } from "@/stores";
 import { useMutation } from "@tanstack/react-query";
 import React from "react";
 import { ConfirmationModal } from "./confirmation-modal";
+import Link from "next/link";
+import { Loader } from "./loader";
 
 type DevicesTableProps = {
     devices: Device[];
@@ -10,6 +12,7 @@ type DevicesTableProps = {
     canUnlink?: boolean;
     canDelete?: boolean;
     linkToDevice?: string;
+    loading?: boolean;
     refetch?: () => void;
 };
 
@@ -21,7 +24,7 @@ const confirmMessageByAction: Record<Action["type"], string> = {
     delete: "Are you sure you want to delete the device?",
 };
 
-export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canUnlink, canDelete, linkToDevice, refetch }) => {
+export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canUnlink, canDelete, linkToDevice, loading, refetch }) => {
     const [confirmAction, setConfirmAction] = React.useState<Action | null>(null);
 
     const unlinkMutation = useMutation({
@@ -55,12 +58,14 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
     const handleCancel = () => setConfirmAction(null);
 
     return (
-        <>
+        <div className="is-relative">
             <table className="table is-bordered is-fullwidth">
                 <thead>
                     <tr>
                         <th>Device UID</th>
                         {!short && <th>Vendor</th>}
+                        {!short && <th>Created</th>}
+                        {!short && <th>Gateway ID</th>}
                         <th>Status</th>
                         {hasActions && <th>Actions</th>}
                     </tr>
@@ -70,6 +75,12 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
                         <tr key={device.id}>
                             <td>{device.uid}</td>
                             {!short && <td>{device.vendor}</td>}
+                            {!short && <td>{new Date(device.created).toLocaleString()}</td>}
+                            {!short && (
+                                <td>
+                                    {device.gateway_id ? <Link href={`/gateway/${device.gateway_id}`}>{device.gateway_id.toString()}</Link> : "–"}
+                                </td>
+                            )}
                             <td>
                                 {device.status === "online" ? (
                                     <span className="tag is-success">online</span>
@@ -114,6 +125,7 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
             </table>
 
             {unlinkMutation.isError && <div className="notification is-danger is-light">{(unlinkMutation.error as Error).message}</div>}
+            {loading && <Loader />}
 
             <ConfirmationModal
                 open={Boolean(confirmAction)}
@@ -121,6 +133,6 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
                 onClose={handleCancel}
                 onConfirm={handleConfirm}
             />
-        </>
+        </div>
     );
 };

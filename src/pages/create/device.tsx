@@ -5,7 +5,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 
 const CreateDevice: NextPage = () => {
-    const { handleSubmit, error, loading } = useForm(deviceService.create, "/");
+    const { handleSubmit, error, loading } = useForm(deviceService.create, "/devices");
 
     return (
         <>

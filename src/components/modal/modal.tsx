@@ -1,15 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-const modalRoot = typeof window === "object" ? document.getElementById("modal-root") : null;
-
-export class Modal extends React.Component<React.PropsWithChildren> {
-    el: HTMLDivElement;
-
-    constructor(props: React.PropsWithChildren) {
-        super(props);
-        this.el = document.createElement("div");
-    }
+export default class Modal extends React.Component<React.PropsWithChildren> {
+    el: HTMLDivElement = document.createElement("div");
+    modalRoot = document.getElementById("modal-root");
 
     componentDidMount() {
         // The portal element is inserted in the DOM tree after
@@ -20,11 +14,11 @@ export class Modal extends React.Component<React.PropsWithChildren> {
         // DOM node, or uses 'autoFocus' in a descendant, add
         // state to Modal and only render the children when Modal
         // is inserted in the DOM tree.
-        modalRoot?.appendChild(this.el);
+        this.modalRoot?.appendChild(this.el);
     }
 
     componentWillUnmount() {
-        modalRoot?.removeChild(this.el);
+        this.modalRoot?.removeChild(this.el);
     }
 
     render() {

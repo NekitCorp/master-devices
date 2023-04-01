@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
 
 const listQuerySchema = z.object({
-    free: z.coerce.boolean(),
+    free: z.coerce.boolean().optional(),
 });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

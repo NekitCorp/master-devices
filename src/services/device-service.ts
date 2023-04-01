@@ -4,9 +4,12 @@ class DeviceService {
     private readonly LIST_API = `/api/devices`;
     private readonly API = `/api/device`;
 
-    public list = async ({ free }: { free: boolean }): Promise<Device[]> => {
+    public list = async ({ free }: { free?: boolean }): Promise<Device[]> => {
         const searchParams = new URLSearchParams();
-        searchParams.set("free", free.toString());
+
+        if (free) {
+            searchParams.set("free", free.toString());
+        }
 
         const res = await fetch(`${this.LIST_API}?${searchParams}`);
 
