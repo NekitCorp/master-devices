@@ -20,7 +20,7 @@ const deviceSchema = z.object({
 
 class DeviceStore extends Store<DeviceSchema> {
     public get collectionName(): string {
-        return "gateways";
+        return "devices";
     }
 
     public async getList({ free, gateway_id }: { free?: boolean; gateway_id?: string }): Promise<Device[]> {
@@ -44,6 +44,24 @@ class DeviceStore extends Store<DeviceSchema> {
 
         return await collection.insertOne({ ...parsed, created: new Date() });
     }
+
+    public unlink = async (id: string): Promise<unknown> => {
+        const collection = await this.collection;
+
+        return await collection.updateOne({ _id: new ObjectId(id) }, { $unset: { gateway_id: "" } });
+    };
+
+    public link = async (id: string, gateway_id: string): Promise<unknown> => {
+        const collection = await this.collection;
+
+        return await collection.updateOne({ _id: new ObjectId(id) }, { $set: { gateway_id: new ObjectId(gateway_id) } });
+    };
+
+    public delete = async (id: string): Promise<unknown> => {
+        const collection = await this.collection;
+
+        return await collection.deleteOne({ _id: new ObjectId(id) });
+    };
 
     public get schema(): CreateCollectionOptions {
         return {

@@ -25,6 +25,18 @@ class GatewayService {
             body: JSON.stringify(value),
         });
     };
+
+    public delete = async (id: string): Promise<Response> => {
+        return fetch(`${this.API}/${encodeURIComponent(id)}`, {
+            method: "DELETE",
+        }).then((res) => {
+            if (res.ok) {
+                return res.json();
+            }
+
+            throw new Error(res.statusText);
+        });
+    };
 }
 
 export const gatewayService = new GatewayService();

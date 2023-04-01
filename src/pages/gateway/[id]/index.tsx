@@ -4,6 +4,7 @@ import { gatewayService } from "@/services/gateway-service";
 import { useQuery } from "@tanstack/react-query";
 import type { NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 
 const GatewayDetail: NextPage = () => {
@@ -11,7 +12,8 @@ const GatewayDetail: NextPage = () => {
     const { id } = router.query;
 
     const { data, error, isLoading } = useQuery({
-        queryKey: ["device", id],
+        queryKey: ["gateway", id],
+        enabled: router.isReady,
         queryFn: () => gatewayService.get(id as string),
     });
 
@@ -29,6 +31,17 @@ const GatewayDetail: NextPage = () => {
 
             <BackToMainButton />
 
+            <div className="tabs is-centered">
+                <ul>
+                    <li className="is-active">
+                        <Link href={`/gateway/${id}`}>Gateway info</Link>
+                    </li>
+                    <li>
+                        <Link href={`/gateway/${id}/link`}>Link devices</Link>
+                    </li>
+                </ul>
+            </div>
+
             <div className="box content my-4">
                 <p>
                     <b>Name:</b> {data.name}
@@ -39,7 +52,7 @@ const GatewayDetail: NextPage = () => {
                 <p>
                     <b>IP address:</b> {data.ip_address}
                 </p>
-                <DevicesTable devices={data.devices} />
+                <DevicesTable devices={data.devices} canUnlink />
             </div>
         </>
     );

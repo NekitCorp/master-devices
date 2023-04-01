@@ -22,6 +22,46 @@ class DeviceService {
             body: JSON.stringify(value),
         });
     };
+
+    public unlink = async (id: string): Promise<Response> => {
+        return fetch(`${this.API}/unlink/${encodeURIComponent(id)}`, {
+            method: "POST",
+        }).then((res) => {
+            if (res.ok) {
+                return res.json();
+            }
+
+            throw new Error(res.statusText);
+        });
+    };
+
+    public link = async (id: string, gateway_id: string): Promise<Response> => {
+        return fetch(`${this.API}/link/${encodeURIComponent(id)}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ gateway_id }),
+        }).then((res) => {
+            if (res.ok) {
+                return res.json();
+            }
+
+            throw new Error(res.statusText);
+        });
+    };
+
+    public delete = async (id: string): Promise<Response> => {
+        return fetch(`${this.API}/${encodeURIComponent(id)}`, {
+            method: "DELETE",
+        }).then((res) => {
+            if (res.ok) {
+                return res.json();
+            }
+
+            throw new Error(res.statusText);
+        });
+    };
 }
 
 export const deviceService = new DeviceService();

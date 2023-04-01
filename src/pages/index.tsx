@@ -1,16 +1,29 @@
+import { ConfirmationModal } from "@/components/confirmation-modal";
 import { DevicesTable } from "@/components/devices-table";
 import { MainHeader } from "@/components/main-header";
 import { gatewayService } from "@/services/gateway-service";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import React from "react";
 
 const Home: NextPage = () => {
-    const { data, error, isLoading } = useQuery({
+    const { data, error, isLoading, refetch } = useQuery({
         queryKey: ["gateways"],
         queryFn: gatewayService.list,
     });
+
+    const [confirmDelete, setConfirmDelete] = React.useState<string | null>(null);
+    const deleteMutation = useMutation({
+        mutationFn: gatewayService.delete,
+        onSuccess: () => refetch(),
+    });
+
+    const handleDeleteGateway = (id: string) => (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        e.preventDefault();
+        setConfirmDelete(id);
+    };
 
     if (isLoading) return <>{"Loading..."}</>;
 
@@ -48,7 +61,7 @@ const Home: NextPage = () => {
                                 <Link href={`/gateway/${gateway.id}`} className="card-footer-item">
                                     🔎 Details
                                 </Link>
-                                <a href="#" className="card-footer-item">
+                                <a href="#" onClick={handleDeleteGateway(gateway.id)} className="card-footer-item">
                                     🗑️ Delete
                                 </a>
                             </footer>
@@ -56,6 +69,13 @@ const Home: NextPage = () => {
                     </div>
                 ))}
             </div>
+
+            <ConfirmationModal
+                open={Boolean(confirmDelete)}
+                message={`Are you sure want to delete gateway ${confirmDelete}?`}
+                onClose={() => setConfirmDelete(null)}
+                onConfirm={() => deleteMutation.mutateAsync(confirmDelete!)}
+            />
         </>
     );
 };

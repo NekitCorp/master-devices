@@ -3,6 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { NotFoundError } from "../../../../lib/errors";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    // GET
+
     if (req.method === "GET") {
         const id = req.query.id;
 
@@ -19,6 +21,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             return res.status(500).json({ error: (e as Error).toString() });
+        }
+    }
+
+    // DELETE
+
+    if (req.method === "DELETE") {
+        const id = req.query.id;
+
+        if (typeof id !== "string") {
+            return res.status(400).json({ error: "Wrong gateway ID." });
+        }
+
+        try {
+            const result = await gatewayStore.delete(id);
+            return res.status(200).json(result);
+        } catch (e) {
+            return res.status(500).json({
+                error: (e as Error).toString(),
+            });
         }
     }
 

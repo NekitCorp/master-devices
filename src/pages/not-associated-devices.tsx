@@ -6,7 +6,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 
 const Home: NextPage = () => {
-    const { data, error, isLoading } = useQuery({
+    const { data, error, isLoading, refetch } = useQuery({
         queryKey: ["free-devices"],
         queryFn: () => deviceService.list({ free: true }),
     });
@@ -24,7 +24,7 @@ const Home: NextPage = () => {
             </Head>
 
             <MainHeader page="devices" />
-            <DevicesTable devices={data} />
+            <DevicesTable devices={data} canDelete refetch={refetch} />
         </>
     );
 };

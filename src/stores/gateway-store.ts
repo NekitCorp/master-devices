@@ -23,7 +23,7 @@ const gatewaySchema = z.object({
 
 class GatewayStore extends Store<GatewaySchema> {
     public get collectionName(): string {
-        return "devices";
+        return "gateways";
     }
 
     public async get(id: string): Promise<Gateway> {
@@ -55,6 +55,16 @@ class GatewayStore extends Store<GatewaySchema> {
 
         return await collection.insertOne(parsed);
     }
+
+    public delete = async (id: string): Promise<unknown> => {
+        const gatewayCollection = await this.collection;
+        const deviceCollection = await deviceStore.collection;
+        const gatewayId = new ObjectId(id);
+
+        await deviceCollection.updateMany({ gateway_id: gatewayId }, { $unset: { gateway_id: "" } });
+
+        return await gatewayCollection.deleteOne({ _id: gatewayId });
+    };
 
     public get schema(): CreateCollectionOptions {
         return {
