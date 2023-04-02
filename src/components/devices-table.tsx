@@ -63,6 +63,7 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
             <table className="table is-bordered is-fullwidth">
                 <thead>
                     <tr>
+                        {!short && <th>#</th>}
                         <th>Device UID</th>
                         {!short && <th>Vendor</th>}
                         {!short && <th>Created</th>}
@@ -72,8 +73,9 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
                     </tr>
                 </thead>
                 <tbody>
-                    {devices.map((device) => (
+                    {devices.map((device, i) => (
                         <tr key={device.id}>
+                            {!short && <td>{i + 1}</td>}
                             <td>{device.uid}</td>
                             {!short && <td>{device.vendor}</td>}
                             {!short && <td>{new Date(device.created).toLocaleString()}</td>}
