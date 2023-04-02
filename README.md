@@ -41,6 +41,7 @@ Each peripheral device has:
 
 Necessary tools:
 
+-   [git](https://git-scm.com/)
 -   [Node.js](https://nodejs.org/en)
 -   [yarn](https://yarnpkg.com/)
 -   [Docker](https://www.docker.com/)

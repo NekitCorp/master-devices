@@ -17,5 +17,6 @@ jobs:
             - run: yarn
             # Lint
             - run: yarn lint
+            - run: yarn test
             # Build
             - run: yarn build
