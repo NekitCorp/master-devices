@@ -1,5 +1,6 @@
 import { deviceStore } from "@/stores";
 import type { NextApiRequest, NextApiResponse } from "next";
+import { parseError } from "../../../../lib/errors";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === "DELETE") {
@@ -13,9 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const result = await deviceStore.delete(id);
             return res.status(200).json(result);
         } catch (e) {
-            return res.status(500).json({
-                error: (e as Error).toString(),
-            });
+            const { message, statusCode } = parseError(e);
+            return res.status(statusCode).json({ error: message });
         }
     }
 

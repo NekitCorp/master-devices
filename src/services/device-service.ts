@@ -45,12 +45,14 @@ class DeviceService {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ gateway_id }),
-        }).then((res) => {
+        }).then(async (res) => {
+            const json = await res.json();
+
             if (res.ok) {
-                return res.json();
+                return json;
             }
 
-            throw new Error(res.statusText);
+            throw new Error(json?.error);
         });
     };
 

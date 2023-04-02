@@ -25,7 +25,7 @@ export const GatewayCard: React.FC<GatewayCardProps> = ({ gateway, onDelete }) =
                             <b>Serial number:</b> {gateway.serial_number}
                         </p>
                         <p>
-                            <b>IP address:</b> {gateway.ip_address}
+                            <b>IP address:</b> <span className="tag is-info is-light">{gateway.ip_address}</span>
                         </p>
                         <DevicesTable short devices={gateway.devices} />
                     </div>

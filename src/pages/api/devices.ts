@@ -1,6 +1,7 @@
 import { deviceStore } from "@/stores";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { z } from "zod";
+import { parseError } from "../../../lib/errors";
 
 const listQuerySchema = z.object({
     free: z.coerce.boolean().optional(),
@@ -18,9 +19,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const result = await deviceStore.getList(parsed.data);
             return res.status(200).json(result);
         } catch (e) {
-            return res.status(500).json({
-                error: (e as Error).toString(),
-            });
+            const { message, statusCode } = parseError(e);
+            return res.status(statusCode).json({ error: message });
         }
     }
 

@@ -1,6 +1,7 @@
 import { CreateCollectionOptions, Filter, ObjectId } from "mongodb";
 import { z } from "zod";
 import { Store } from "./store";
+import { ValidationError } from "../../lib/errors";
 
 export type DeviceSchema = {
     uid: number;
@@ -53,6 +54,12 @@ class DeviceStore extends Store<DeviceSchema> {
 
     public link = async (id: string, gateway_id: string): Promise<unknown> => {
         const collection = await this.collection;
+
+        const count = await collection.countDocuments({ gateway_id: new ObjectId(gateway_id) });
+
+        if (count >= 10) {
+            throw new ValidationError("No more that 10 peripheral devices are allowed for a gateway.");
+        }
 
         return await collection.updateOne({ _id: new ObjectId(id) }, { $set: { gateway_id: new ObjectId(gateway_id) } });
     };

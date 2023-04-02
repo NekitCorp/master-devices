@@ -1,5 +1,6 @@
 import { BackToMainButton } from "@/components/back-to-main-button";
 import { DevicesTable } from "@/components/devices-table";
+import { Loader } from "@/components/loader";
 import { gatewayService } from "@/services/gateway-service";
 import { useQuery } from "@tanstack/react-query";
 import type { NextPage } from "next";
@@ -11,22 +12,20 @@ const GatewayDetail: NextPage = () => {
     const router = useRouter();
     const { id } = router.query;
 
-    const { data, error, isLoading } = useQuery({
+    const { data, error, isLoading, isFetching, refetch } = useQuery({
         queryKey: ["gateway", id],
         enabled: router.isReady,
         queryFn: () => gatewayService.get(id as string),
     });
 
-    if (isLoading) return <>{"Loading..."}</>;
-
-    if (error) return <>{"An error has occurred: " + error}</>;
-
-    if (!data) return <>{"Data does not exist."}</>;
+    if (error) {
+        return <div className="notification is-danger is-light">An error has occurred: {`${error}`}</div>;
+    }
 
     return (
         <>
             <Head>
-                <title>Master Devices / Gateway {data.name}</title>
+                <title>Master Devices / Gateway {id}</title>
             </Head>
 
             <BackToMainButton />
@@ -42,17 +41,22 @@ const GatewayDetail: NextPage = () => {
                 </ul>
             </div>
 
-            <div className="box content my-4">
-                <p>
-                    <b>Name:</b> {data.name}
-                </p>
-                <p>
-                    <b>Serial number:</b> {data.serial_number}
-                </p>
-                <p>
-                    <b>IP address:</b> {data.ip_address}
-                </p>
-                <DevicesTable devices={data.devices} canUnlink />
+            <div className="box content my-4 is-relative">
+                {data && (
+                    <>
+                        <p>
+                            <b>Name:</b> {data.name}
+                        </p>
+                        <p>
+                            <b>Serial number:</b> {data.serial_number}
+                        </p>
+                        <p>
+                            <b>IP address:</b> <span className="tag is-info is-light">{data.ip_address}</span>
+                        </p>
+                        <DevicesTable devices={data.devices} canUnlink refetch={refetch} />
+                    </>
+                )}
+                {(isLoading || isFetching) && <Loader />}
             </div>
         </>
     );

@@ -1,8 +1,14 @@
+import { ipv4Pattern, serialNumberPattern } from "@/common/validation";
 import { BackToMainButton } from "@/components/back-to-main-button";
 import { useForm } from "@/hooks/use-form";
 import { gatewayService } from "@/services/gateway-service";
 import type { NextPage } from "next";
 import Head from "next/head";
+
+const serialNumberHelp =
+    "Number should be in four groups of eight characters each, separated by hyphens. Each character in the string must be either an uppercase letter (A to Z) or a digit (0 to 9). Example: 01234567-89ABCDEF-01234567-89ABCDEF.";
+const ipAddressHelp =
+    "Consists of four numbers separated by dots, each number ranging from 0 to 255. For example, an IPv4 address may look like: 192.168.1.1.";
 
 const CreateGateway: NextPage = () => {
     const { handleSubmit, error, loading } = useForm(gatewayService.create, "/");
@@ -31,10 +37,11 @@ const CreateGateway: NextPage = () => {
                             type="text"
                             required
                             placeholder="01234567-89ABCDEF-01234567-89ABCDEF"
-                            pattern="[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}"
-                            title="Number should be in four groups of eight characters each, separated by hyphens. Each character in the string must be either an uppercase letter (A to Z) or a digit (0 to 9)."
+                            pattern={serialNumberPattern}
+                            title={serialNumberHelp}
                         />
                     </div>
+                    <p className="help">{serialNumberHelp}</p>
                 </div>
 
                 <div className="field">
@@ -59,9 +66,10 @@ const CreateGateway: NextPage = () => {
                             type="text"
                             required
                             placeholder="192.168.1.1"
-                            pattern="(\d{1,3}\.){3}\d{1,3}"
-                            title="IPv4 address (dotted decimal notation)."
+                            pattern={ipv4Pattern}
+                            title={ipAddressHelp}
                         />
+                        <p className="help">{ipAddressHelp}</p>
                     </div>
                 </div>
 

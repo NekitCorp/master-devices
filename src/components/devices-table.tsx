@@ -41,6 +41,7 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
     });
 
     const hasActions = canUnlink || Boolean(linkToDevice) || canDelete;
+    const error = unlinkMutation.error || linkMutation.error || deleteMutation.error;
 
     const handleConfirm = () => {
         switch (confirmAction?.type) {
@@ -124,7 +125,7 @@ export const DevicesTable: React.FC<DevicesTableProps> = ({ devices, short, canU
                 </tbody>
             </table>
 
-            {unlinkMutation.isError && <div className="notification is-danger is-light">{(unlinkMutation.error as Error).message}</div>}
+            {error ? <div className="notification is-danger is-light">{`${error}`}</div> : null}
             {loading && <Loader />}
 
             <ConfirmationModal

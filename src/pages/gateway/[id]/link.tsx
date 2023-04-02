@@ -1,5 +1,6 @@
 import { BackToMainButton } from "@/components/back-to-main-button";
 import { DevicesTable } from "@/components/devices-table";
+import { Loader } from "@/components/loader";
 import { deviceService } from "@/services/device-service";
 import { useQuery } from "@tanstack/react-query";
 import type { NextPage } from "next";
@@ -11,16 +12,24 @@ const GatewayLinkDevices: NextPage = () => {
     const router = useRouter();
     const { id } = router.query;
 
-    const { data, error, isLoading, refetch } = useQuery({
+    const {
+        data = [],
+        error,
+        isLoading,
+        isFetching,
+        refetch,
+    } = useQuery({
         queryKey: ["free-devices"],
         queryFn: () => deviceService.list({ free: true }),
     });
 
-    if (isLoading) return <>{"Loading..."}</>;
+    if (error) {
+        return <div className="notification is-danger is-light">An error has occurred: {`${error}`}</div>;
+    }
 
-    if (error) return <>{"An error has occurred: " + error}</>;
-
-    if (!data || typeof id !== "string") return <>{"Data does not exist."}</>;
+    if (typeof id !== "string") {
+        return <div className="notification is-danger is-light">Wrong id type: {id}.</div>;
+    }
 
     return (
         <>
@@ -41,9 +50,10 @@ const GatewayLinkDevices: NextPage = () => {
                 </ul>
             </div>
 
-            <div className="box content my-4">
+            <div className="box content my-4 is-relative">
                 <h1 className="title">Available unlinked devices</h1>
                 <DevicesTable devices={data} linkToDevice={id} refetch={refetch} />
+                {(isLoading || isFetching) && <Loader />}
             </div>
         </>
     );

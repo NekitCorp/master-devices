@@ -1,3 +1,4 @@
+import { serialNumberRegExp } from "@/common/validation";
 import { CreateCollectionOptions, ObjectId } from "mongodb";
 import { z } from "zod";
 import { NotFoundError } from "../../lib/errors";
@@ -16,7 +17,7 @@ export type Gateway = GatewaySchema & {
 };
 
 const gatewaySchema = z.object({
-    serial_number: z.string().regex(/[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}-[A-Z0-9]{8}/),
+    serial_number: z.string().regex(serialNumberRegExp),
     name: z.string(),
     ip_address: z.string().ip(),
 });
